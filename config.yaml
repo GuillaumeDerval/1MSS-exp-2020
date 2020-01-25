@@ -1,4 +1,4 @@
-jarpath: "/Users/gderval/IdeaProjects/1MSS/target/scala-2.13/1MSS-assembly-0.1.jar"
+jarpath: "1MSS-assembly-0.1.jar"
 
 n_instances_per_param: 30
 
