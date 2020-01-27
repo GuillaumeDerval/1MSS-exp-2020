@@ -1,7 +1,5 @@
 jarpath: "1MSS-assembly-0.1.jar"
 
-n_instances_per_param: 30
-
 ctr_methods:
   - nothing
   - lpbound-fast-no-recompute
@@ -15,9 +13,11 @@ branch_methods:
   - static
   - dynamic
 
-synth_test_complete: # ["sizeRxsizeC", probably_row_or_col_in_sol_in_pct, timeout]
-  - ["20x20", 30, 30]
-  - ["25x25", 30, 30]
-  - ["50x50", 20, 60]
-  - ["50x150", 20, 60]
-  - ["300x300", 10, 60]
+n_instances_per_param: 50
+
+synth_test_complete: # ["sizeRxsizeC", probably_row_or_col_in_sol_in_pct, timeout, first_n_instances_considered]
+  - ["20x20", 30, 30, 50]
+  - ["25x25", 30, 30, 50]
+  - ["50x50", 20, 60, 50]
+  - ["50x150", 20, 60, 50]
+  - ["300x300", 10, 60, 50]
