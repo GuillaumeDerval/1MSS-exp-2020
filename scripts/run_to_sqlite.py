@@ -2,11 +2,10 @@ import sqlite3
 import os
 import sys
 sys.path.insert(0, os.path.join(snakemake.scriptdir, ".."))
-print(snakemake.scriptdir)
 from scripts.extract_data_run import extract_params_from_name, extract_sols, extract_runs
 
 
-def gen_db(dbpath, runs_path):
+def gen_db(dbpath, runs_path, format, params_names_and_type):
     try:
         os.unlink(dbpath)
     except:
@@ -15,16 +14,23 @@ def gen_db(dbpath, runs_path):
     conn = sqlite3.connect(dbpath)
     c = conn.cursor()
 
+    type_to_sqltype = {
+        int: "int",
+        str: "text",
+        float: "real"
+    }
+    columns_with_type = ", ".join("{} {}".format(x[0], type_to_sqltype[x[1]]) for x in params_names_and_type)
+    columns_name = ", ".join("{}".format(x[0]) for x in params_names_and_type)
+
     # Create table
-    c.execute('''CREATE TABLE runs (n_rows int, n_cols int, p_sol int, dataset_id int,
-                                    ctr_direct text, ctr_transpose text, branching text, max_time int, 
+    c.execute(f'''CREATE TABLE runs({columns_with_type}, 
                                     runtime int, n_nodes int, n_fails int, completed boolean, n_sols int, 
                                     best_sol_time int, best_sol_node int, best_sol_obj real)''')
     c.execute('''CREATE TABLE run_sols (run_rowid int, obj real, node int, time int)''')
 
     runs_add = []
     for f in runs_path:
-        params = extract_params_from_name(f)
+        params = extract_params_from_name(f, format, params_names_and_type)
         runs = extract_runs(f)
         sols = extract_sols(f)
 
@@ -49,12 +55,10 @@ def gen_db(dbpath, runs_path):
             best_sol_node = sols[-1][1]
             best_sol_time = sols[-1][2]
 
-        entry = (params["n_rows"], params["n_cols"], params["p_sol"], params["dataset_id"],
-                 params["ctr_direct"], params["ctr_transpose"], params["branching"], params["max_time"],
-                 runtime, n_nodes, n_fails, completed, n_sols, best_sol_time, best_sol_node, best_sol_obj)
+        entry = [params[x] for x, _ in params_names_and_type] + [runtime, n_nodes, n_fails, completed, n_sols, best_sol_time, best_sol_node, best_sol_obj]
 
-        c.execute('INSERT INTO runs (n_rows, n_cols, p_sol, dataset_id, ctr_direct, ctr_transpose, branching, max_time, runtime, n_nodes, n_fails, completed, n_sols, best_sol_time, best_sol_node, best_sol_obj) '
-                  'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', entry)
+        c.execute(f'INSERT INTO runs ({columns_name}, runtime, n_nodes, n_fails, completed, n_sols, best_sol_time, best_sol_node, best_sol_obj) '
+                  'VALUES ('+','.join(["?"] * (len(params_names_and_type) + 8))+')', entry)
 
         row_id = c.lastrowid
         c.executemany('INSERT INTO run_sols (run_rowid, obj, node, time) '
@@ -64,5 +68,4 @@ def gen_db(dbpath, runs_path):
     conn.commit()
     conn.close()
 
-gen_db(snakemake.output[0], snakemake.input)
-#gen_db("test.db", ["../results/synthetic/20x20_30_0_lpbound-fast-no-recompute-filter-row_lpbound-fast-no-recompute-filter-row_dynamic_30.txt"])
+gen_db(snakemake.output[0], snakemake.input, snakemake.params.format, snakemake.params.params)
