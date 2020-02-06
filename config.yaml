@@ -1,19 +1,19 @@
 jarpath: "1MSS-assembly-0.1.jar"
 
 ctr_methods:
-  - nothing
-  #- lpbound-fast-no-recompute
-  - lpbound-fast-no-recompute-filter-row
-  #- lpbound-recompute
-  - lpbound-recompute-filter-row
-  #- lpbound-recompute-partial-2-filter-row
-  #- lpbound-recompute-partial-5-filter-row
+  - ["nothing", "nothing"]
+  - ["lpbound-fast-no-recompute-filter-row", "lpbound-fast-no-recompute-filter-row"]
+  - ["lpbound-recompute", "lpbound-recompute"]
+  - ["lagrange-best", "nothing"]
+  - ["lagrange-best", "lagrange-best"]
+  - ["lagrange-second", "nothing"]
+  - ["lagrange-second", "lagrange-second"]
 
 branch_methods:
   - static
   - dynamic
 
-synth_small_sizes: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
+synth_small_sizes: [10, 15, 20, 25, 30, 35]
 synth_small_fill_with:
   - [0.2, 1]
   - [0, 1]
