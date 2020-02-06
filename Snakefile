@@ -81,11 +81,11 @@ rule start_synthetic_big:
 
 rule produce_synthetic_big:
     input: "scripts/gen_synth_big.py"
-    output: expand("data/synthetic_big/{{n_rows}}x{{n_cols}}_{{p_sol}}/{i}.tsv", i=range(config["n_instances_per_param"]))
+    output: expand("data/synthetic_big/{{n_rows}}x{{n_cols}}_{{p_sol}}/{i}.tsv", i=range(config["synth_big_n_instances_per_size"]))
     params:
         output_path = "data/synthetic_big/{n_rows}x{n_cols}_{p_sol}",
         file_prefix_name = "",
-        n_to_generate = int(config["n_instances_per_param"]),
+        n_to_generate = int(config["synth_big_n_instances_per_size"]),
         p_row_sol = lambda wildcards, output: float(wildcards.p_sol)/100.0,
         p_col_sol = lambda wildcards, output: float(wildcards.p_sol)/100.0,
         n_rows = lambda wildcards, output: int(wildcards.n_rows),

@@ -13,13 +13,12 @@ branch_methods:
   - static
   - dynamic
 
-n_instances_per_param: 50
-
 synth_small_sizes: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 synth_small_fill_with:
   - [0.2, 1]
   - [0, 1]
 synth_small_n_instances_per_size: 50
 
+synth_big_n_instances_per_size: 50
 synth_big_sizes: # ["sizeRxsizeC", probably_row_or_col_in_sol_in_pct, timeout, first_n_instances_considered]
   - ["300x300", 10, 60, 1]
