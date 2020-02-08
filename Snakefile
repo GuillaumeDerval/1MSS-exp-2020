@@ -5,7 +5,8 @@ configfile: "config.yaml"
 #
 rule all:
     input:
-        "results/synthetic_small.db"
+        "results/synthetic_small.db",
+        "results/synthetic_big.db"
 
 #
 # SYNTHETIC SMALL (COMPLETE)
@@ -77,7 +78,7 @@ rule start_synthetic_big:
         jar=config["jarpath"]
     output: "results/synthetic_big/{dtype}_{dataset}_{ctr_direct}_{ctr_transpose}_{branching}_{timeout}.txt"
     group: "synth_{dtype}_{dataset}"
-    shell: "java -cp {input.jar} oscar1mss.runners.CompleteRunner {input.file} {wildcards.timeout} {wildcards.ctr_direct} {wildcards.ctr_transpose} {wildcards.branching} > {output}"
+    shell: "java -cp {input.jar} oscar1mss.runners.LNSRunner {input.file} {wildcards.timeout} {wildcards.ctr_direct} {wildcards.ctr_transpose} {wildcards.branching} > {output}"
 
 rule produce_synthetic_big:
     input: "scripts/gen_synth_big.py"
@@ -90,8 +91,8 @@ rule produce_synthetic_big:
         p_col_sol = lambda wildcards, output: float(wildcards.p_sol)/100.0,
         n_rows = lambda wildcards, output: int(wildcards.n_rows),
         n_cols = lambda wildcards, output: int(wildcards.n_cols),
-        mean_high_distribution = 0.5,
-        mean_low_distribution = -0.5,
+        mean_high_distribution = -0.01,
+        mean_low_distribution = -0.1,
         sigma_low_distribution = 1,
         sigma_high_distribution = 1
     script: "scripts/gen_synth_big.py"

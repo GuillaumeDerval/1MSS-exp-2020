@@ -13,12 +13,23 @@ branch_methods:
   - static
   - dynamic
 
-synth_small_sizes: [10, 15, 20, 25, 30, 35]
+synth_small_sizes: [10, 14, 18, 22, 26, 30]
 synth_small_fill_with:
   - [0.2, 1]
   - [0, 1]
 synth_small_n_instances_per_size: 50
 
-synth_big_n_instances_per_size: 50
+synth_big_n_instances_per_size: 30
 synth_big_sizes: # ["sizeRxsizeC", probably_row_or_col_in_sol_in_pct, timeout, first_n_instances_considered]
-  - ["300x300", 10, 60, 1]
+  - ["500x500", 5, 60, 30]
+  - ["500x500", 30, 60, 30]
+  - ["500x500", 70, 60, 30]
+  - ["1000x1000", 5, 60, 30]
+  - ["1000x1000", 30, 60, 30]
+  - ["1000x1000", 70, 60, 30]
+  - ["2000x2000", 5, 60, 30]
+  - ["2000x2000", 30, 60, 30]
+  - ["2000x2000", 70, 60, 30]
+  - ["3000x3000", 5, 60, 30]
+  - ["3000x3000", 30, 60, 30]
+  - ["3000x3000", 70, 60, 30]
