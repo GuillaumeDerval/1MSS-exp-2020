@@ -32,13 +32,19 @@ rule produce_synthetic_small_sql:
     script:
         "scripts/run_to_sqlite.py"
 
-rule start_synthetic_small:
+
+rule start_synthetic_small_tmp:
     input:
         file="data/synthetic_small/{dataset}.tsv",
         jar=config["jarpath"]
-    output: "results/synthetic_small/{dataset}_{method}_{branching}.txt"
+    output:
+        final="results/synthetic_small/{dataset}_{method}_{branching}.txt",
+        tmp=temp("tmp/results/synthetic_small/{dataset}_{method}_{branching}.txt")
     group: "synth_{dataset}"
-    shell: "java -cp {input.jar} oscar1mss.runners.CompleteRunner {input.file} 72000 {wildcards.method} {wildcards.branching} > {output}"
+    shell:
+        "java -cp {input.jar} oscar1mss.runners.CompleteRunner {input.file} 72000 {wildcards.method} {wildcards.branching} > {output.tmp};"
+        "cp {output.tmp} {output.final};"
+        "echo 'FINAL' >> {output.final}"
 
 rule produce_synthetic_small:
     output: "data/synthetic_small/{size}_{mean}_{sigma}_{dataset_id}.tsv"
@@ -74,9 +80,16 @@ rule start_synthetic_big:
     input:
         file="data/synthetic_big/{dtype}/{dataset}.tsv",
         jar=config["jarpath"]
-    output: "results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}.txt"
+    output:
+        final="results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}.txt",
+        tmp=temp("tmp/results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}.txt")
     group: "synth_{dtype}_{dataset}"
-    shell: "java -cp {input.jar} oscar1mss.runners.LNSRunner {input.file} {wildcards.timeout} {wildcards.method} {wildcards.branching} > {output}"
+    threads: 2
+    shell:
+        "java -cp {input.jar} oscar1mss.runners.LNSRunner {input.file} {wildcards.timeout} {wildcards.method} {wildcards.branching} > {output.tmp};"
+        "cp {output.tmp} {output.final};"
+        "echo 'FINAL' >> {output.final}"
+
 
 rule produce_synthetic_big:
     input: "scripts/gen_synth_big.py"
