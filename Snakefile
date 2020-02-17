@@ -17,8 +17,9 @@ def produce_synthetic_small_sql_gen_ids():
     for size in config["synth_small_sizes"]:
         for mean, sigma in config["synth_small_fill_with"]:
             for method, branching in config["methods"]:
-                for dataset_id in range(config["synth_small_n_instances_per_size"]):
-                    out.append(f"{size}_{mean}_{sigma}_{dataset_id}_{method}_{branching}")
+                if branching != "mip":
+                    for dataset_id in range(config["synth_small_n_instances_per_size"]):
+                        out.append(f"{size}_{mean}_{sigma}_{dataset_id}_{method}_{branching}")
     return out
 
 rule produce_synthetic_small_sql:
@@ -33,7 +34,7 @@ rule produce_synthetic_small_sql:
         "scripts/run_to_sqlite.py"
 
 
-rule start_synthetic_small_tmp:
+rule start_synthetic_small:
     input:
         file="data/synthetic_small/{dataset}.tsv",
         jar=ancient(config["jarpath"])
@@ -86,6 +87,8 @@ rule start_synthetic_big:
         final="results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}_{lns_timeout}.txt",
         tmp=temp("tmp/results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}_{lns_timeout}.txt")
     group: "synth_{dtype}_{dataset}"
+    wildcard_constraints:
+        branching="(static|dynamic)"
     resources:
         mem_mb=5500
     shell:
@@ -93,6 +96,20 @@ rule start_synthetic_big:
         "cp {output.tmp} {output.final};"
         "echo 'FINAL' >> {output.final}"
 
+rule start_synthetic_big_mip:
+    input:
+        file="data/synthetic_big/{dtype}/{dataset}.tsv",
+        mipscript=ancient(config["mippath"])
+    output:
+        final="results/synthetic_big/{dtype}_{dataset}_mip-{method}_mip_{timeout}_{lns_timeout}.txt",
+        tmp=temp("tmp/results/synthetic_big/{dtype}_{dataset}_mip-{method}_mip_{timeout}_{lns_timeout}.txt")
+    group: "synth_{dtype}_{dataset}"
+    resources:
+        mem_mb=5500
+    shell:
+        "python {input.mipscript} {input.file} {wildcards.method} {wildcards.timeout} > {output.tmp};"
+        "cp {output.tmp} {output.final};"
+        "echo 'FINAL' >> {output.final}"
 
 rule produce_synthetic_big:
     input: "scripts/gen_synth_big.py"
