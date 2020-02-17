@@ -36,13 +36,15 @@ rule produce_synthetic_small_sql:
 rule start_synthetic_small_tmp:
     input:
         file="data/synthetic_small/{dataset}.tsv",
-        jar=config["jarpath"]
+        jar=ancient(config["jarpath"])
     output:
         final="results/synthetic_small/{dataset}_{method}_{branching}.txt",
         tmp=temp("tmp/results/synthetic_small/{dataset}_{method}_{branching}.txt")
     group: "synth_{dataset}"
+    resources:
+            mem_mb=2200
     shell:
-        "java -cp {input.jar} oscar1mss.runners.CompleteRunner {input.file} 72000 {wildcards.method} {wildcards.branching} > {output.tmp};"
+        "java -Xmx2G -cp {input.jar} oscar1mss.runners.CompleteRunner {input.file} 72000 {wildcards.method} {wildcards.branching} > {output.tmp};"
         "cp {output.tmp} {output.final};"
         "echo 'FINAL' >> {output.final}"
 
@@ -59,10 +61,10 @@ rule produce_synthetic_small:
 
 def produce_synthetic_big_sql_gen_ids():
     out = []
-    for size, psol, timeout, first_n_instances_considered in config["synth_big_sizes"]:
+    for size, psol, timeout, first_n_instances_considered, lns_timeout in config["synth_big_sizes"]:
         for method, branching in config["methods"]:
             for dataset in range(first_n_instances_considered):
-                out.append(f"{size}_{psol}_{dataset}_{method}_{branching}_{timeout}")
+                out.append(f"{size}_{psol}_{dataset}_{method}_{branching}_{timeout}_{lns_timeout}")
     return out
 
 rule produce_synthetic_big_sql:
@@ -71,22 +73,23 @@ rule produce_synthetic_big_sql:
     output:
         "results/synthetic_big.db"
     params:
-        format=r"(?:.*[^0-9])?(?P<n_rows>[0-9]+)x(?P<n_cols>[0-9]+)_(?P<p_sol>[0-9]+)_(?P<dataset_id>[0-9]+)_(?P<method>[^_]+)_(?P<branching>[^_]+)_(?P<max_time>[0-9]+)\.txt",
-        params=[("n_rows", int), ("n_cols", int), ("p_sol", int), ("dataset_id", int), ("method", str), ('branching', str), ('max_time', int)]
+        format=r"(?:.*[^0-9])?(?P<n_rows>[0-9]+)x(?P<n_cols>[0-9]+)_(?P<p_sol>[0-9]+)_(?P<dataset_id>[0-9]+)_(?P<method>[^_]+)_(?P<branching>[^_]+)_(?P<max_time>[0-9]+)_(?P<lns_timeout>[0-9]+)\.txt",
+        params=[("n_rows", int), ("n_cols", int), ("p_sol", int), ("dataset_id", int), ("method", str), ('branching', str), ('max_time', int), ('lns_timeout', int)]
     script:
         "scripts/run_to_sqlite.py"
 
 rule start_synthetic_big:
     input:
         file="data/synthetic_big/{dtype}/{dataset}.tsv",
-        jar=config["jarpath"]
+        jar=ancient(config["jarpath"])
     output:
-        final="results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}.txt",
-        tmp=temp("tmp/results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}.txt")
+        final="results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}_{lns_timeout}.txt",
+        tmp=temp("tmp/results/synthetic_big/{dtype}_{dataset}_{method}_{branching}_{timeout}_{lns_timeout}.txt")
     group: "synth_{dtype}_{dataset}"
-    threads: 2
+    resources:
+        mem_mb=5500
     shell:
-        "java -cp {input.jar} oscar1mss.runners.LNSRunner {input.file} {wildcards.timeout} {wildcards.method} {wildcards.branching} > {output.tmp};"
+        "java -Xmx5G -cp {input.jar} oscar1mss.runners.LNSRunner {input.file} {wildcards.timeout} {wildcards.method} {wildcards.branching} {wildcards.lns_timeout} > {output.tmp};"
         "cp {output.tmp} {output.final};"
         "echo 'FINAL' >> {output.final}"
 
