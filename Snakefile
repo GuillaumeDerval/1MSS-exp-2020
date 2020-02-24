@@ -107,6 +107,7 @@ rule start_synthetic_big_mip:
     resources:
         mem_mb=5500
     shell:
+        "export OPENBLAS_NUM_THREADS=1;"
         "python {input.mipscript} {input.file} {wildcards.method} {wildcards.timeout} > {output.tmp};"
         "cp {output.tmp} {output.final};"
         "echo 'FINAL' >> {output.final}"
