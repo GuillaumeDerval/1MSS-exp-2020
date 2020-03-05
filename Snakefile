@@ -92,7 +92,7 @@ rule start_synthetic_big:
     resources:
         mem_mb=5500
     shell:
-        "java -Xmx5G -cp {input.jar} oscar1mss.runners.LNSRunner {input.file} {wildcards.timeout} {wildcards.method} {wildcards.branching} {wildcards.lns_timeout} > {output.tmp};"
+        "java -Xmx5G -cp {input.jar} oscar1mss.runners.LNSRunner2 {input.file} {wildcards.timeout} {wildcards.method} {wildcards.branching} {wildcards.lns_timeout} > {output.tmp};"
         "cp {output.tmp} {output.final};"
         "echo 'FINAL' >> {output.final}"
 

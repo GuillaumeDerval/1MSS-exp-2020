@@ -18,6 +18,10 @@ data = [[float(y) for y in x.split("\t")] for x in inputfile.read().split("\n") 
 nRows = len(data)
 nCols = len(data[0])
 
+if nRows >= 2000 and type == "strong":
+    print("This will consume too much memory. Stopping.")
+    exit(0)
+
 rows_idx = range(0, nRows)
 cols_idx = range(0, nCols)
 
