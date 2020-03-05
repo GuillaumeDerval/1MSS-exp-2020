@@ -136,9 +136,10 @@ rule produce_synthetic_big:
 
 def run_lagrange_ids():
     all = set()
-    for size, psol, _, first_n_instances_considered, _ in config["synth_big_sizes"]:
-        for i in range(first_n_instances_considered):
-            all.add(f"{size}_{psol}_{i}")
+    for size in config["synth_small_sizes"]:
+        for mean, sigma in config["synth_small_fill_with"]:
+            for dataset_id in range(config["synth_small_n_instances_per_size"]):
+                all.add(f"{size}_{mean}_{sigma}_{dataset_id}")
     return list(all)
 
 rule sumup_lagrange:
@@ -154,6 +155,6 @@ rule sumup_lagrange:
         json.dump(open(output, 'w'), out)
 
 rule run_lagrange_convergence:
-    input: "data/synthetic_big/{size}_{p_sol}/{i}.tsv"
-    output: "results/lagrange_convergence/{size}_{p_sol}_{i}.json"
+    input: "data/synthetic_small/{size}_{mean}_{sigma}_{dataset_id}.tsv"
+    output: "results/lagrange_convergence/{size}_{mean}_{sigma}_{dataset_id}.json"
     script: "scripts/exp_lagrange_convergence.py"

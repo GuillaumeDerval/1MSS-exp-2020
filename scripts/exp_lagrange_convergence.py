@@ -44,7 +44,7 @@ def find_optimum(data):
     return -m.objVal
 
 def run_lagrange(data):
-    #optimum = find_optimum(data)
+    optimum = find_optimum(data)
     data = np.array(data)
     nRows = len(data)
     nCols = len(data[0])
@@ -106,10 +106,10 @@ def run_lagrange(data):
     out = []
     for itr in range(500):
         ub = iteration(mu)
-        out.append(ub)
+        out.append((itr, ub, ub-optimum))
         mu*=0.95
 
-    return out
+    return optimum, out
 
 out = run_lagrange(data)
 json.dump(out, outputfile)
