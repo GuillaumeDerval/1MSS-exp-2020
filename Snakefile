@@ -6,7 +6,8 @@ configfile: "config.yaml"
 rule all:
     input:
         "results/synthetic_small.db",
-        "results/synthetic_big.db"
+        "results/synthetic_big.db",
+        "results/lagrange_convergence.json"
 
 #
 # SYNTHETIC SMALL (COMPLETE)
@@ -129,3 +130,30 @@ rule produce_synthetic_big:
         sigma_high_distribution = 1
     script: "scripts/gen_synth_big.py"
 
+#
+# Expes Lagrange convergence
+#
+
+def run_lagrange_ids():
+    all = set()
+    for size, psol, _, first_n_instances_considered, _ in config["synth_big_sizes"]:
+        for i in range(first_n_instances_considered):
+            all.add(f"{size}_{psol}_{i}")
+    return list(all)
+
+rule sumup_lagrange:
+    input: expand("results/lagrange_convergence/{d}.json", d=run_lagrange_ids())
+    output: "results/lagrange_convergence.json"
+    run:
+        import json
+        out = {}
+        for f in input:
+            with open(f, 'r') as ff:
+                inp = json.load(ff)
+                out[f] = inp
+        json.dump(open(output, 'w'), out)
+
+rule run_lagrange_convergence:
+    input: "data/synthetic_big/{size}_{p_sol}/{i}.tsv"
+    output: "results/lagrange_convergence/{size}_{p_sol}_{i}.json"
+    script: "scripts/exp_lagrange_convergence.py"
