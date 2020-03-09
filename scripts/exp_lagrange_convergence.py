@@ -102,12 +102,12 @@ def run_lagrange(data):
                     gamma[i, j] = max(0.0, gamma[i, j]-mu*(x[i, j]+1-r[i]-c[j]))
         return ub
 
-    mu = 1.0
+    mu = 1
     out = []
     for itr in range(500):
         ub = iteration(mu)
         out.append((itr, ub, ub-optimum))
-        mu*=0.95
+        mu *= 0.95
 
     return optimum, out
 

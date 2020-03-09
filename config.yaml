@@ -20,6 +20,12 @@ synth_small_fill_with:
   - [0, 1]
 synth_small_n_instances_per_size: 50
 
+lagrange_sizes: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+lagrange_fill_with:
+  - [0.2, 1]
+  - [0, 1]
+lagrange_n_instances_per_size: 5
+
 synth_big_n_instances_per_size: 30
 synth_big_sizes: # ["sizeRxsizeC", probably_row_or_col_in_sol_in_pct, timeout, first_n_instances_considered]
   - ["500x500", 5, 60, 30, 200]

@@ -136,9 +136,9 @@ rule produce_synthetic_big:
 
 def run_lagrange_ids():
     all = set()
-    for size in config["synth_small_sizes"]:
-        for mean, sigma in config["synth_small_fill_with"]:
-            for dataset_id in range(config["synth_small_n_instances_per_size"]):
+    for size in config["lagrange_sizes"]:
+        for mean, sigma in config["lagrange_fill_with"]:
+            for dataset_id in range(config["lagrange_n_instances_per_size"]):
                 all.add(f"{size}_{mean}_{sigma}_{dataset_id}")
     return list(all)
 
@@ -152,7 +152,7 @@ rule sumup_lagrange:
             with open(f, 'r') as ff:
                 inp = json.load(ff)
                 out[f] = inp
-        json.dump(open(output, 'w'), out)
+        json.dump(out, open(str(output), 'w'))
 
 rule run_lagrange_convergence:
     input: "data/synthetic_small/{size}_{mean}_{sigma}_{dataset_id}.tsv"
